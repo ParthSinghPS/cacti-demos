@@ -1,15 +1,46 @@
-# `@hyperledger-cacti/cactus-test-api-client`
+# @hyperledger-cacti/cactus-test-api-client
 
-This is the test package for the package that's called `cactus-api-client`
+## Overview
+
+Dedicated integration-test package for [@hyperledger-cacti/cactus-api-client](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-api-client). Keeping these tests separate prevents circular test dependencies between the API client and the server-side packages it exercises.
+
+### Target Audience
+
+- [ ] Application developers
+- [x] Contributors
+- [ ] Operators
+
+## Install
+
+Install repository dependencies from the cacti-demos root:
+
+```bash
+yarn install
+```
+
+Docker is required by integration tests that provision ledger or service containers.
+
+## API Summary
+
+This package does not expose a production API. Its tracked test suites verify API-client behavior against Cacti services and plugins, including the [Cacti API server](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-cmd-api-server).
 
 ## Usage
 
+Use the test sources under src/test/typescript as integration examples for constructing the generated API clients and invoking Cacti endpoints.
+
+## Testing
+
+The package contains unit and integration test sources but does not define a standalone Jest script in the current demos workspace. Validate compilation and repository checks from the root:
+
+```bash
+yarn run build:dev:backend
+yarn run lint
 ```
-// TODO: DEMONSTRATE API
-```
 
-## FAQ
+## Contributing
 
-### **What is a dedicated test package for?**
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
 
-This is a dedicated test package meaning that it verifies the integration between two packages that are somehow dependent on each other and therefore these tests cannot be added properly in the child package due to circular dependency issues and it would not be fitting to add it in the parent because the child package's tests should not be held by the parent as a matter of principle.
+## License
+
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

@@ -1,52 +1,95 @@
-# Hyperledger Cactus Example - CBDC Bridging between Fabric and Besu Backend
+# @hyperledger-cacti/cactus-example-cbdc-bridging-backend
 
-## Running the Test Suites
+## Overview
 
-> Make sure you have all the dependencies set up as explained in `BUILD.md`
+Backend for the CBDC bridging example. It demonstrates an asset transfer workflow between Hyperledger Fabric and Hyperledger Besu using Cacti ledger connectors, SATP Hermes gateways, keychain storage, and IPFS-backed object storage.
 
-On the terminal, issue the following commands in the project root:
+### Target Audience
 
-1. `yarn run configure`
-2. `yarn run start:example-cbdc-bridging-app`
+- [x] Application developers
+- [x] Contributors
+- [ ] Operators
 
-Wait for the output to show the message `CbdcBridgingApp running...`
+> This application is an integration example and is not production-ready.
 
-In a second terminal run the following commands from the project root: 3. `cd examples/cactus-example-cbdc-bridging-backend` 4. `yarn run test`
+## Install
 
-## Running the Example Application Locally
+Use Node.js 20.20.0 and install dependencies from the cacti-demos root:
 
-> Make sure you have all the dependencies set up as explained in `BUILD.md`
-
-On the terminal, issue the following commands:
-
-1. `yarn run configure`
-2. `yarn run start:example-cbdc-bridging-app`
-
-Wait for the output to show the message `CbdcBridgingApp running...`
-
-## Running with a different configuration
-
-There is a `process.env` file where you can change the following variables:
-
-```
-API_HOST=localhost // the path where the backend will be running
-API_SERVER_1_PORT=4000 // port assign to the FabricConnectorApi
-API_SERVER_2_PORT=4100 // port assign to the BesuConnectorApi
-API_GATEWAY_1_BLO_PORT=4010 // port assign to the Gateway1's OpenApi Service
-API_GATEWAY_2_BLO_PORT=4110 // port assign to the Gateway2's SATP Service
-API_GATEWAY_1_CLIENT_PORT=3011 // port assign to the Gateway1's SATP Client Service
-API_GATEWAY_2_CLIENT_PORT=3111 // port assign to the Gateway2's SATP Client Service
-API_GATEWAY_1_SERVER_PORT=3010 // port assign to the Gateway1's SATP Server Service
-API_GATEWAY_2_SERVER_PORT=3110 // port assign to the Gateway2's SATP Server Service
+```bash
+yarn install
 ```
 
-## Debugging the Example Application Locally
+Docker is required because the example provisions test ledger infrastructure.
 
-On the terminal, issue the following commands (steps 1 to 6) and then perform the rest of the steps manually.
+## Configuration
 
-1. `yarn run configure`
-2. Locate the `.vscode/template.launch.json` file
-3. Within that file locate the entry named `"Example: CBDC Bridging Fabric-EVM App"`
-4. Copy the VSCode debug definition object from 2) to your `.vscode/launch.json` file
-5. At this point the VSCode `Run and Debug` panel on the left should have an option also titled `"Example: CBDC Bridging Fabric-EVM App"` which starts the application
-6. Wait for the output to show the message `CbdcBridgingApp running...`
+The process.env file in this directory defines the local service addresses and ports:
+
+| Variable                  | Purpose                               |
+| :------------------------ | :------------------------------------ |
+| API_HOST                  | Hostname used by the backend services |
+| API_SERVER_1_PORT         | Fabric connector API port             |
+| API_SERVER_2_PORT         | Besu connector API port               |
+| API_GATEWAY_1_BLO_PORT    | Gateway 1 OpenAPI service port        |
+| API_GATEWAY_2_BLO_PORT    | Gateway 2 OpenAPI service port        |
+| API_GATEWAY_1_CLIENT_PORT | Gateway 1 SATP client port            |
+| API_GATEWAY_2_CLIENT_PORT | Gateway 2 SATP client port            |
+| API_GATEWAY_1_SERVER_PORT | Gateway 1 SATP server port            |
+| API_GATEWAY_2_SERVER_PORT | Gateway 2 SATP server port            |
+
+Review the file before changing ports because the frontend and integration tests expect compatible endpoint values.
+
+## API Summary
+
+The package exports CbdcBridgingApp and its options. Its HTTP contract is defined in src/main/yml/openapi.yml and generated into the TypeScript sources during the repository build.
+
+The example integrates these Cacti packages:
+
+- [Cacti API client](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-api-client)
+- [Cacti API server](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-cmd-api-server)
+- [Besu connector](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-plugin-ledger-connector-besu)
+- [Fabric connector](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-plugin-ledger-connector-fabric)
+- [SATP Hermes](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-plugin-satp-hermes)
+- [IPFS object store](https://github.com/hyperledger-cacti/cacti/tree/main/extensions/cactus-plugin-object-store-ipfs)
+
+## Usage
+
+Start the backend from the repository root:
+
+```bash
+yarn workspace @hyperledger-cacti/cactus-example-cbdc-bridging-backend run start
+```
+
+Wait for CbdcBridgingApp running... before starting the frontend or integration tests.
+
+### Debugging in Visual Studio Code
+
+1. Open .vscode/template.launch.json.
+2. Copy the Example: CBDC Bridging Fabric-EVM App configuration into .vscode/launch.json.
+3. Select that configuration in Run and Debug.
+4. Start the debugger and wait for the backend startup message.
+
+## Testing
+
+Run the Cucumber suite:
+
+```bash
+yarn workspace @hyperledger-cacti/cactus-example-cbdc-bridging-backend run test
+```
+
+Run the Jest integration suite:
+
+```bash
+yarn workspace @hyperledger-cacti/cactus-example-cbdc-bridging-backend run test:integration
+```
+
+These tests provision external services and require Docker.
+
+## Contributing
+
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
+
+## License
+
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

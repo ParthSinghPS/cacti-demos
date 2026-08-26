@@ -1,74 +1,78 @@
-# `@hyperledger/cactus-test-geth-ledger`
+# @hyperledger-cacti/cactus-test-geth-ledger
 
-Helpers for running test `go-ethereum` ledger in test scripts.
+## Overview
 
-## Summary
+Utilities for starting and controlling a go-ethereum test ledger in automated tests. GethTestLedger manages the container lifecycle and exposes the ledger RPC endpoint.
 
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Runing the tests](#running-the-tests)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+### Target Audience
 
-## Getting Started
+- [ ] Application developers
+- [x] Contributors
+- [ ] Operators
 
-Clone the git repository on your local machine. Follow these instructions that will get you a copy of the project up and running on
-your local machine for development and testing purposes.
+## Install
 
-### Prerequisites
+Install repository dependencies from the cacti-demos root:
 
-In the root of the project to install the dependencies execute the command:
-
-```sh
-npm run configure
+```bash
+yarn install
 ```
+
+Docker is required to run the ledger container.
+
+## Configuration
+
+GethTestLedger accepts IGethTestLedgerOptions. The exported GETH_TEST_LEDGER_DEFAULT_OPTIONS provides suitable local defaults. Common options include the container image name and version, log level, container-log forwarding, environment variables, and whether to reuse an already running ledger.
+
+The package also exports the development whale account address and private key. Use these credentials only in isolated test environments.
+
+## API Summary
+
+- GethTestLedger: starts, inspects, stops, and destroys the test ledger.
+- IGethTestLedgerOptions: constructor options.
+- GETH_TEST_LEDGER_DEFAULT_OPTIONS: default container configuration.
+- WHALE_ACCOUNT_ADDRESS and WHALE_ACCOUNT_PRIVATE_KEY: funded test credentials.
+
+The implementation uses [Cacti Common](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-common) and the local [test-tooling package](../cactus-test-tooling/README.md).
 
 ## Usage
 
-- In order to start the new test ledger, you must import `GethTestLedger` and `start()` it.
-- Options can be modified by supplying constructor argument object.
-- See tests for more complete usage examples.
-
 ```typescript
-import { GethTestLedger } from "@hyperledger-cacti/cactus-test-geth-ledger";
+import {
+  GethTestLedger,
+  type IGethTestLedgerOptions,
+} from "@hyperledger-cacti/cactus-test-geth-ledger";
 
-// You can supply empty object, suitable default values will be used.
-const options = {
-  containerImageName: "cactus_geth_all_in_one", // geth AIO container name
-  containerImageVersion: "local-build", // geth AIO container tag
-  logLevel: "info" as LogLevelDesc, // log verbosity of test class, not ethereum node!
-  emitContainerLogs: false, // will print ethereum node logs here if `true`
-  envVars: [], // environment variables to provide when starting the ledger
-  useRunningLedger: false, // test flag to search for already running ledger instead of starting new one (only for development)
+const options: Partial<IGethTestLedgerOptions> = {
+  emitContainerLogs: false,
+  useRunningLedger: false,
 };
 
 const ledger = new GethTestLedger(options);
 await ledger.start();
-// await ledger.start(true); // don't pull image, use one from local storage
 
-// Use
-const rpcApiHttpHost = await ledger.getRpcApiHttpHost();
+try {
+  const rpcApiHttpHost = await ledger.getRpcApiHttpHost();
+  console.log(rpcApiHttpHost);
+} finally {
+  await ledger.stop();
+  await ledger.destroy();
+}
 ```
 
-## Running the tests
+## Testing
 
-To check that all has been installed correctly and that the test class has no errors:
+Integration tests are located under src/test/typescript/integration. The package does not define a standalone Jest script in the current demos workspace. Validate compilation and repository checks from the root:
 
-- Run this command at the project's root:
-
-```sh
-npx jest cactus-test-geth-ledger
+```bash
+yarn run build:dev:backend
+yarn run lint
 ```
 
 ## Contributing
 
-We welcome contributions to Hyperledger Cactus in many forms, and there’s always plenty to do!
-
-Please review [CONTRIBUTING.md](../../CONTRIBUTING.md) to get started.
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
 
 ## License
 
-This distribution is published under the Apache License Version 2.0 found in the [LICENSE](../../LICENSE) file.
-
-## Acknowledgments
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

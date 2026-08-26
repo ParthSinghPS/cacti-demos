@@ -1,84 +1,73 @@
-# Cacti Starter: Minimal Onboarding Template
+# @hyperledger-cacti/cacti-starter
 
-Welcome to the Hyperledger Cacti Starter! This template provides the simplest possible "Hello World" experience for new contributors. It demonstrates Level 2 architecture (API Server + Plugin) with minimal setup.
+## Overview
 
-## Quick Start
+A minimal Hyperledger Cacti application that starts the Cacti API server with the in-memory keychain plugin. It provides a small, editable onboarding example for local development.
+
+### Target Audience
+
+- [x] Application developers
+- [x] Contributors
+- [ ] Operators
+
+> This example disables authentication and TLS for simplicity. Do not use this configuration in production.
+
+## Install
+
+Use Node.js 20.20.0 and Corepack-enabled Yarn. From this directory:
 
 ```bash
-cd examples/cacti-starter
 ./bootstrap.sh
+```
+
+The bootstrap script installs the repository dependencies and prepares the starter configuration.
+
+## Configuration
+
+The .config.json file configures the API server on port 4000 and loads @hyperledger-cacti/cactus-plugin-keychain-memory. The example includes self-signed certificate material because the Cacti configuration schema requires certificate values even when apiTlsEnabled is false.
+
+For production deployments, enable TLS, use certificates issued for the deployment, and configure an appropriate authorization protocol.
+
+## API Summary
+
+The example exposes the API server and the endpoints registered by the in-memory keychain plugin. Swagger UI is available at http://127.0.0.1:4000/api/v1/api-docs/ while the application is running.
+
+Relevant Cacti packages:
+
+- [Cacti API server](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-cmd-api-server)
+- [In-memory keychain plugin](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-plugin-keychain-memory)
+
+## Usage
+
+Start the example:
+
+```bash
 ./run.sh
 ```
 
-Swagger UI: [http://127.0.0.1:4000/api/v1/api-docs/](http://127.0.0.1:4000/api/v1/api-docs/)
+The request flow is:
 
-## Test the Keychain Plugin
+```mermaid
+graph TD
+    Client[Client or curl] -->|HTTP request| API[Cacti API Server :4000]
+    API -->|Route request| Plugin[In-memory keychain plugin]
+    Plugin -->|Store data| Memory[(Process memory)]
+```
 
-In a new terminal:
+## Testing
+
+With the application running, use a second terminal:
 
 ```bash
 ./test.sh
 ```
 
-## Architecture
+The script exercises the keychain endpoint exposed by the starter.
 
-- **API Server**: Runs the Cacti REST API
-- **Plugin**: Only `@hyperledger/cactus-plugin-keychain-memory` is loaded
-- **No JWT, No TLS**: Authentication and encryption are disabled for simplicity
+## Contributing
 
-> **Note on TLS configuration**: Even though TLS is disabled in this starter (`"apiTlsEnabled": false`), the Cacti v3 framework configuration schema strictly enforces the presence of TLS certificate strings and validates them when booting its internal gRPC server. Because of this, the `.config.json` includes dummy self-signed certificates. This is the correct setup for a local development "No TLS" environment in v3. For a production environment, you would replace these strings with real CA-signed certificates and set TLS to true.
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
 
-```mermaid
-graph TD
-    Client[Client or curl] -->|HTTP POST| API[Cacti API Server 4000]
-    API -->|Route Request| Plugin[Keychain Memory Plugin]
-    Plugin -->|Store Data| Mem[(In-Memory Storage)]
-```
+## Acknowledgments
 
-## Purpose
-
-- Help new contributors get started in minutes
-- Provide a working, hackable Cacti setup
-- Avoid all unnecessary complexity
-
----
-
-## Environment Setup (Ubuntu / Linux)
-
-If you are starting from scratch on Ubuntu, follow these prerequisites to get your environment ready:
-
-#### 1. Git
-
-```bash
-sudo apt update
-sudo apt install -y git
-```
-
-#### 2. Node.js (v20.20.0) & npm
-
-Use nvm (Node Version Manager):
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-nvm install 20.20.0
-nvm use 20.20.0
-```
-
-#### 3. Yarn (via Corepack)
-
-```bash
-corepack enable
-```
-
-#### 4. Docker Engine & Compose
-
-Docker is required if you plan to run blockchain ledgers.
-
-```bash
-sudo apt install -y docker.io docker-compose
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo usermod -aG docker $USER
-newgrp docker
-```
+This example uses Hyperledger Cacti packages maintained in the [main Cacti repository](https://github.com/hyperledger-cacti/cacti).

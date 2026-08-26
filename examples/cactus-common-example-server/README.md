@@ -1,16 +1,73 @@
-# `@hyperledger/cactus-common-example-server`
+# @hyperledger-cacti/cactus-common-example-server
 
-This is a module for common server setup used by some sample application. Do not use on production.
+## Overview
 
-## Usage samples
-	- [cactus-example-electricity-trade](../../examples/cactus-example-electricity-trade)
-	- [cactus-example-discounted-asset-trade](../../examples/cactus-example-discounted-asset-trade)
+Shared server-side utilities retained for Cacti demo applications. The package contains verifier, routing interface, business logic plugin, configuration, and transaction-signing helpers.
 
-## Docker
-- Docker image of this package is used mostly as a base for other applications and plugins (BLP, socketio connectors).
-- Docker build process will use artifacts from the latest build. Make sure `./dist` contains the version you want to dockerize.
+### Target Audience
 
-```
-# Build
-docker build . -t cactus-common-example-server
-```
+- [x] Application developers
+- [x] Contributors
+- [ ] Operators
+
+> This package supports demonstrations and tests. It is not intended for production use.
+
+## Install
+
+Install repository dependencies from the cacti-demos root:
+
+~~~bash
+yarn install
+yarn workspace @hyperledger-cacti/cactus-common-example-server run build
+~~~
+
+## API Summary
+
+The public API exports:
+
+- Verifier and ledger-event utilities
+- Routing types and transaction-management helpers
+- Socket.IO server startup and business logic plugin configuration
+- BusinessLogicPlugin, BusinessLogicBase, and LedgerOperation
+- TransactionSigner and configuration-reading utilities
+
+The implementation builds on [Cacti Common](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-common) and [Cacti Core API](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-core-api).
+
+## Usage
+
+Import only the utility required by the consuming example:
+
+~~~typescript
+import {
+  BusinessLogicPlugin,
+  TransactionSigner,
+} from "@hyperledger-cacti/cactus-common-example-server";
+~~~
+
+Refer to src/main/typescript/public-api.ts for the complete supported export surface.
+
+## Container Image
+
+The Docker image is primarily a base for demo applications and plugins. Build the TypeScript output before building the image:
+
+~~~bash
+yarn workspace @hyperledger-cacti/cactus-common-example-server run build
+docker build examples/cactus-common-example-server -t cactus-common-example-server
+~~~
+
+## Testing
+
+The package contains unit tests under src/test/typescript/unit. It does not define a standalone test script. From the repository root, validate compilation and repository formatting with:
+
+~~~bash
+yarn run build:dev:backend
+yarn run lint
+~~~
+
+## Contributing
+
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
+
+## License
+
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).

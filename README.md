@@ -50,8 +50,8 @@ This repository is organized as a Yarn Workspace:
 │   │   └── config/                   # Adapter configuration files (gateway + adapter YAML configs)
 │   └── extensions/
 │       └── carbon-credit/            # Extending core gateway logic with business-related functionality
-├── examples/                         # Future: full-fledged example applications (empty for now)
-├── packages/                         # Future: test packages migrated from cacti (empty for now)
+├── examples/                         # Example applications and workshop projects
+├── packages/                         # Shared test fixtures and integration-test packages
 ├── Makefile                          # Orchestrates all demo cases
 ├── package.json                      # Workspace configuration
 └── tsconfig.json                     # TypeScript compiler configuration
@@ -60,6 +60,8 @@ This repository is organized as a Yarn Workspace:
 ---
 
 ## Case Descriptions
+
+Active workspaces under [examples](./examples/) and [packages](./packages/) include a README describing their purpose, setup, API surface, usage, and validation guidance.
 
 ### Extensions Cases
 
