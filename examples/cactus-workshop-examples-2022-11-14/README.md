@@ -1,66 +1,89 @@
-# Hyperledger Cacti Workshop 2022-11-14 Examples
+# @hyperledger-cacti/cactus-workshop-examples-2022-11-14
 
-This folder contains several simple examples using different components of Hyperledger Cacti that are used in the first Hyperledger workshop dedicated to interoperability, using Cacti: https://wiki.hyperledger.org/display/events/Blockchain+Interoperability+with+Hyperledger+Cacti
+## Overview
 
-## Hyperledger Cacti Workshop Examples - Hello World
+Source examples from the Hyperledger workshop on blockchain interoperability with Cacti. The package demonstrates a minimal API server, a consortium configuration, and programmatic test-ledger provisioning.
 
-WARNING: This code IS NOT production-ready nor secure! Namely, cross-site scripting is possible if user input is not sanitized.
+Workshop materials: https://wiki.hyperledger.org/display/events/Blockchain+Interoperability+with+Hyperledger+Cacti
 
-`src/main/typescript/hello-world.ts`
+### Target Audience
 
-Creates an APIServer listening on port 3001 that exposes the endpoints of the ingested plugins - for demonstration purposes we use only one plugin, the cactus-plugin-object-store-ipfs. This plugin interacts with an underlying IPFS network (a simple key-value store).
+- [x] Application developers
+- [x] Contributors
+- [ ] Operators
 
-Run the file with the following command `npx ts-node src/main/typescript/hello-world.ts`
+> These examples are educational. They are not production-ready, and the hello-world example does not sanitize user input.
 
-To interact with the IPFS connector through the APIServer follow the next commands:
+## Install
 
-- POST `/api/v1/plugins/@hyperledger/cactus-plugin-object-store-ipfs/set-object`, which sets a new key-value pair.
+From the cacti-demos repository root:
 
-  ```
-  curl --header "Content-Type: application/json" \
-      --request POST \
-      --data '{"key":"1234","value":"xyz"}' \
-      http://localhost:3001/api/v1/plugins/@hyperledger/cactus-plugin-object-store-ipfs/set-object
-  ```
+```bash
+yarn install
+```
 
-- POST `/api/v1/plugins/@hyperledger/cactus-plugin-object-store-ipfs/get-object`, which gets a key-value pair.
+Some examples provision containers and require Docker.
 
-  ```
-  curl --header "Content-Type: application/json" \
-      --request POST  \
-      --data '{"key":"1234"}' \
-      http://localhost:3001/api/v1/plugins/@hyperledger/cactus-plugin-object-store-ipfs/get-object
-  ```
+## API Summary
 
-- GET "/has-object", which checks if a key-value pair exits in the client.
-  ```
-  curl --header "Content-Type: application/json" \
-      --request POST  \
-      --data '{"key":"1234"}' \
-      http://localhost:3001/api/v1/plugins/@hyperledger/cactus-plugin-object-store-ipfs/has-object
-  ```
+This package is executable workshop material and does not expose a reusable public API.
 
-_NOTE: other carachters might appear in the output of the commands since we should insert the values in base64. For demo purposes we don't make the conversion._
+The examples use Cacti packages including:
 
-## Hyperledger Cacti Workshop Examples - Simple Consortium
+- [Cacti API server](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-cmd-api-server)
+- [Cacti Core](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-core)
+- [IPFS object-store plugin](https://github.com/hyperledger-cacti/cacti/tree/main/extensions/cactus-plugin-object-store-ipfs)
 
-`src/main/typescript/test-ledger.ts`
+## Usage
 
-Creates a simple Cacti Consortium.
+### Hello World
 
-Runs with the following command `npx ts-node src/main/typescript/simple-consortium.ts`
+src/main/typescript/hello-world.ts starts an API server on port 3001 with the IPFS object-store plugin:
 
-## Hyperledger Cacti Workshop Examples - Substrate test ledger
+```bash
+npx ts-node src/main/typescript/hello-world.ts
+```
 
-`src/main/typescript/test-ledger.ts`
+The plugin endpoints include:
 
-Creates a substrate test ledger programmatically.
+- POST /api/v1/plugins/@hyperledger-cacti/cactus-plugin-object-store-ipfs/set-object
+- POST /api/v1/plugins/@hyperledger-cacti/cactus-plugin-object-store-ipfs/get-object
+- POST /api/v1/plugins/@hyperledger-cacti/cactus-plugin-object-store-ipfs/has-object
 
-Runs with the following command `npx ts-node src/main/typescript/test-ledger.ts`
+The endpoint payload values are encoded as expected by the plugin API.
 
-## Known issues
+### Simple Consortium
 
-This example package works with version 1.0.0 of `@hyperledger/cactus-test-tooling`. It will work with the most recent version once #2213 is resolved.
+src/main/typescript/simple-consortium.ts creates a simple Cacti consortium:
+
+```bash
+npx ts-node src/main/typescript/simple-consortium.ts
+```
+
+### Substrate Test Ledger
+
+src/main/typescript/test-ledger.ts creates a Substrate test ledger programmatically:
+
+```bash
+npx ts-node src/main/typescript/test-ledger.ts
+```
+
+## Testing
+
+The package does not define an automated test script. From the repository root, validate that the workshop sources compile and satisfy repository checks with:
+
+```bash
+yarn run build:dev:backend
+yarn run lint
+```
+
+## Contributing
+
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
+
+## License
+
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## Authors
 

@@ -1,49 +1,112 @@
-# `@hyperledger/cactus-test-tooling`
+# @hyperledger-cacti/cactus-test-tooling
 
-> TODO: description
+## Overview
+
+Shared infrastructure for Cacti integration tests and demonstrations. The package manages disposable ledger networks, service containers, cryptographic fixtures, Docker resources, and SATP gateway processes.
+
+### Target Audience
+
+- [ ] Application developers
+- [x] Contributors
+- [ ] Operators
+
+> The exported defaults and credentials are designed for isolated tests. Do not use them in production.
+
+## Install
+
+Install repository dependencies from the cacti-demos root:
+
+```bash
+yarn install
+```
+
+Most ledger helpers require Docker. Individual ledgers may also require platform-specific prerequisites documented by their upstream images.
+
+## Configuration
+
+Each test-ledger or container class accepts its own typed constructor options and exports defaults where applicable. Options commonly control the image name and version, exposed ports, environment variables, resource limits, log forwarding, and reuse of existing containers.
+
+## API Summary
+
+The public API includes:
+
+- Test ledgers for Besu, Besu multi-party, Corda 4, Corda 5, DAML, Fabric, Indy, OpenEthereum, Stellar, and Substrate
+- Service containers for PostgreSQL, Vault, LocalStack, Keycloak, IPFS, HTTP echo, Corda connector, and WS identity
+- SATPGatewayRunner for SATP integration environments
+- Container lifecycle, Docker image build, environment conversion, stream, and GitHub Actions utilities
+- Self-signed PKI generation and Socket.IO test setup helpers
+
+Refer to src/main/typescript/public-api.ts for the complete export surface. The shared implementation uses [Cacti Common](https://github.com/hyperledger-cacti/cacti/tree/main/packages/cactus-common).
 
 ## Usage
 
+A typical ledger lifecycle is:
+
+```typescript
+import { BesuTestLedger } from "@hyperledger-cacti/cactus-test-tooling";
+
+const ledger = new BesuTestLedger();
+
+await ledger.start();
+
+try {
+  const rpcApiHttpHost = await ledger.getRpcApiHttpHost();
+  console.log(rpcApiHttpHost);
+} finally {
+  await ledger.stop();
+  await ledger.destroy();
+}
 ```
-// TODO: DEMONSTRATE API
-```
 
-## Docker image for the ws-identity server
+Always stop and destroy resources in a finally block so failed tests do not leave containers running.
 
-A docker image of the [ws-identity server](https://hub.docker.com/repository/docker/brioux/ws-identity) is used to test integration of WS-X.509 credential type in the fabric connector plugin.
+### Stellar Test Ledger
 
-[ws-identity](https://github.com/brioux/ws-identity) includes A Docker file to build the image:
-clone the repo, install packages, build src and the image
-
-```
-npm install
-npm run build
-docker build . -t [image-name]
-```
-
-## Stellar Test Ledger Usage
-
-The Stellar test ledger follows the same structure present in the test ledger tools for other networks within the Cacti project. It pulls up and manages the [Stellar Quickstart Docker Image](https://github.com/stellar/quickstart) and can be used by importing the class `StellarTestLedger`, then instantiating it with some key optional arguments to define how the image should be configure.
-
-- `network`: Defines if the image should pull up a pristine local ledger or alternatively connect to an existing public test ledger. Defaults to `local`. It is important to note that connecting to an existing network can take up to several minutes to synchronize the ledger state.
-
-- `limits`: Defines the resource limits for soroban smart contract transactions. A valid transaction and only be included in a ledger block if enough resources are available for that operation. Defaults to `testnet`, which mimics the actual resource limits applied to the mainnet based on its test environment.
-
-Once the class is successfully instantiated, one can start the environment by triggering
+StellarTestLedger manages the [Stellar Quickstart image](https://github.com/stellar/quickstart). Its network option selects a pristine local ledger or an existing public test network. The limits option configures Soroban resource limits and defaults to testnet-compatible values.
 
 ```typescript
 await stellarTestLedger.start();
+
+try {
+  const networkConfiguration =
+    await stellarTestLedger.getNetworkConfiguration();
+} finally {
+  await stellarTestLedger.stop();
+  await stellarTestLedger.destroy();
+}
 ```
 
-The image will be pulled up and wait until the healthcheck ensures all of its services have started successfully and are accessible, then returns the container object.
+The returned network configuration is compatible with the stellar-plus library.
 
-When integrating to a Stellar environment, it is common to use a few key services provided at different ports and paths. Once the class has been started, one can use the method `getNetworkConfiguration()` to get an object containing the required information to connect to this services.
+### WS Identity Test Server
 
-This object is already formatted to be used with the [stellar-plus](https://github.com/CheesecakeLabs/stellar-plus) open source js library to create a custom network configuration object that integrates with its provided tools, ensuring a frictionless development flow for this test ledger.
+WsTestServer supports integration testing of WS-X.509 credentials in the Fabric connector. The test image is based on the [ws-identity server](https://github.com/brioux/ws-identity). To build that upstream image locally:
 
-Once the image have been fully utilized, one can fully stop and remove the environment by triggering
-
-```typescript
-await stellarTestLedger.stop();
-await stellarTestLedger.destroy();
+```bash
+npm install
+npm run build
+docker build . -t ws-identity
 ```
+
+## Testing
+
+The package contains unit and integration test sources but does not define a standalone Jest script in the current demos workspace. Validate compilation and repository checks from the root:
+
+```bash
+yarn run build:dev:backend
+yarn run lint
+```
+
+Integration suites require Docker and may pull large ledger images.
+
+## Contributing
+
+See the repository [contribution guidelines](../../CONTRIBUTING.md).
+
+## License
+
+The package metadata declares the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+## Acknowledgments
+
+The ledger helpers wrap upstream development images and are maintained for Cacti integration testing.
